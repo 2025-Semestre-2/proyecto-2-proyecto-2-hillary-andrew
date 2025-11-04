@@ -1,0 +1,282 @@
+package com.sistemasoperativos.pcvirtual.compilador;
+import java_cup.runtime.*;
+import com.sistemasoperativos.pcvirtual.componentes.Conversor;
+import java.util.ArrayList;
+
+parser code {:
+    private Conversor ConversorAsignado = new Conversor();
+    private ArrayList<String> instruccionesBinarias = new ArrayList<>();
+    private boolean Error;
+    private String MessageError;
+
+    public ArrayList<String> getInstruccionesBinarias() {
+        return instruccionesBinarias;
+    }
+
+    /**
+     * Maneja errores sintácticos encontrados por el parser
+     * @param s símbolo donde ocurrió el error
+     */
+    public void syntax_error(Symbol s) {
+        Error = true;
+        if (s != null) {
+            MessageError = ("Error sintáctico en la línea " + (s.left + 1) +
+            ", columna " + (s.right + 1) + ": " + s.value);
+        } else {
+            MessageError = ("Error sintáctico: símbolo nulo");
+        }
+    }
+
+
+    public void parsarCodigo() throws Exception{
+        Error = false;
+        parse();
+    }
+
+    public boolean VerificarSiHayError(){
+        return Error;
+    }
+
+    public String ObtenerMensajeError(){
+        return MessageError;
+    }
+:}
+
+// === Terminales (tokens que devuelve el lexer) ===
+terminal SEPARATOR, COMMA;
+terminal String LOAD, STORE, MOV, ADD, SUB, INC, DEC, SWAP, INT, JMP, CMP, JE, JNE, PARAM, PUSH, POP;
+terminal String AX, BX, CX, DX, AC;
+terminal String INT20H, INT10H, INT09H;
+terminal String INT_LITERAL;
+
+// === No terminales ===
+non terminal programa;
+non terminal bloqueInstrucciones;
+non terminal instruccion;
+non terminal instruccionUnArgumento;
+non terminal instruccionDosArgumentos;
+non terminal instruccionCeroArgumentos;
+non terminal argumentos;
+non terminal argumento;
+non terminal argumentoInt;
+non terminal argumentoNumero;
+
+// === Inicio ===
+start with programa;
+
+// === Reglas ===
+programa ::= bloqueInstrucciones;
+
+bloqueInstrucciones ::= instruccion:ins
+                      | bloqueInstrucciones SEPARATOR instruccion:ins;
+
+instruccion ::= instruccionUnArgumento
+              | instruccionDosArgumentos
+              | instruccionCeroArgumentos
+              | error
+              ;
+
+/* === Instrucciones de un argumento === */
+instruccionUnArgumento ::= LOAD argumento:arg
+{:
+    String bin = "00000" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | STORE argumento:arg
+{:
+    String bin = "00001" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | ADD argumento:arg
+{:
+    String bin = "00011" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | SUB argumento:arg
+{:
+    String bin = "00100" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | JMP argumento:arg
+{:
+    String bin = "01001" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | JE argumento:arg
+{:
+    String bin = "01011" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | JNE argumento:arg
+{:
+    String bin = "01100" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | PUSH argumento:arg
+{:
+    String bin = "01110" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | POP argumento:arg
+{:
+    String bin = "01111" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         | INT argumentoInt:arg
+{:
+    String bin = "01000" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                         ;
+
+/* === Instrucciones de dos argumentos === */
+instruccionDosArgumentos ::= MOV argumento:a COMMA argumento:b
+{:
+    String bin = "00010" + a + b;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                           | MOV argumento:a COMMA argumentoInt:b
+{:
+    String bin = "00010" + a + b;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                           | SWAP argumento:a COMMA argumento:b
+{:
+    String bin = "00111" + a + b;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                           | CMP argumento:a COMMA argumento:b
+{:
+    String bin = "01010" + a + b;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                           | PARAM argumentos:args
+{:
+    String bin = "01101" + args;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                           ;
+
+/* === Instrucciones de cero o un argumento (ej: INC, DEC) === */
+instruccionCeroArgumentos ::= INC
+{:
+    String bin = "00101";
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                            | DEC
+{:
+    String bin = "00110";
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                            | INC argumento:arg
+{:
+    String bin = "00101" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                            | DEC argumento:arg
+{:
+    String bin = "00110" + arg;
+    instruccionesBinarias.add(bin);
+    RESULT = bin;
+:}
+                            ;
+
+/* === Argumentos === */
+argumentos ::= argumentoNumero:arg
+{:
+    RESULT = arg;
+:}
+             | argumentoNumero:arg COMMA argumentos:args
+{:
+    RESULT = arg.toString() + args.toString();
+:}
+             ;
+
+argumento ::= AX
+{:
+    RESULT = "00011";
+:}
+            | BX
+{:
+    RESULT = "00100";
+:}
+            | CX
+{:
+    RESULT = "00101";
+:}
+            | DX
+{:
+    RESULT = "00110";
+:}
+            | AC
+{:
+    RESULT = "00001";
+:}
+            ;
+
+argumentoInt ::= INT20H
+{:
+    RESULT = "00000";
+:}
+               | INT10H
+{:
+    RESULT = "00001";
+:}
+               | INT09H
+{:
+    RESULT = "00010";
+:};
+
+argumentoNumero ::= INT_LITERAL:numero
+{:
+    RESULT = ConversorAsignado.ConvertirIntegerABits(Integer.getInteger(numero));
+:};
+
+
+/*
+=================================================
+ Tabla de opcodes (5 bits) para cada instrucción
+=================================================
+
+Instrucción   Binario   Decimal
+--------------------------------
+LOAD          00000     0
+STORE         00001     1
+MOV           00010     2
+ADD           00011     3
+SUB           00100     4
+INC           00101     5
+DEC           00110     6
+SWAP          00111     7
+INT           01000     8
+JMP           01001     9
+CMP           01010     10
+JE            01011     11
+JNE           01100     12
+PARAM         01101     13
+PUSH          01110     14
+POP           01111     15
+
+--------------------------------
+Códigos disponibles: 16–31
+(reservados para futuras instrucciones)
+--------------------------------
+*/
