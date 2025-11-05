@@ -23,14 +23,13 @@ public class Fija implements Cargador {
     private final Almacenamiento Disco;
     private final Conversor ConversorAsignado;
     private final List<String> DireccionesProgramas;
-    private int IndicePrograma = 0;
     private final BUS BusAsignado;
     
     public Fija(int tamanoMarco, int tamanoMemoria, Almacenamiento disco, BUS bus, List<String> direccionesProgramas){
         TamanoMarco = tamanoMarco;
         TamanoMemoria = tamanoMemoria;
         TablaAsignacion = new LinkedHashMap<>();
-        for(int base = 100; base < TamanoMemoria - tamanoMarco; base += tamanoMarco){
+        for(int base = 200; base < TamanoMemoria - tamanoMarco; base += tamanoMarco){
             TablaAsignacion.put(base, Boolean.FALSE);
         }
         Disco = disco;
@@ -41,6 +40,8 @@ public class Fija implements Cargador {
 
     @Override
     public void CargarPrograma(BCP bcp) throws Exception {
+        if(DireccionesProgramas.isEmpty())
+            return;
         for(Map.Entry<Integer, Boolean> direccion : TablaAsignacion.entrySet()){
             if(!direccion.getValue()){
                 String baseBits = ConversorAsignado.ConvertirIntegerABits(direccion.getKey());
@@ -54,8 +55,8 @@ public class Fija implements Cargador {
     }
     
     private void EscribirPrograma(int direccionBase, BCP bcp) throws Exception{
-        String direccion = DireccionesProgramas.get(IndicePrograma);
-        IndicePrograma++;
+        String direccion = DireccionesProgramas.get(DireccionesProgramas.size() - 1);
+        DireccionesProgramas.remove(direccion);
         List<String> programa = Disco.BuscarPrograma(direccion);
         for(int indice = 0; indice < TamanoMarco && indice < programa.size(); indice++){
             String instruccion = programa.get(indice);
@@ -64,7 +65,8 @@ public class Fija implements Cargador {
             bcp.setLimite(direccionEscritura);
         }
         if(programa.size() <= TamanoMarco + 5)
-            DefinirStackPointer(bcp); 
+            DefinirStackPointer(bcp);
+        bcp.setRafaga(programa.size());
     }
     
     private void DefinirStackPointer(BCP bcp){

@@ -31,7 +31,6 @@ import com.sistemasoperativos.pcvirtual.instrucciones.Swap;
 import com.sistemasoperativos.pcvirtual.instrucciones.CMP;
 import com.sistemasoperativos.pcvirtual.instrucciones.Param;
 import com.sistemasoperativos.pcvirtual.procesos.GestorProcesos;
-import com.sistemasoperativos.pcvirtual.procesos.ColaProcesos;
 import algoritmos.FCFS;
 import algoritmos.HRRN;
 import algoritmos.RR;
@@ -39,11 +38,14 @@ import algoritmos.SRT;
 import algoritmos.SJF;
 //import algoritmos.SRR;
 import algoritmos.Algoritmo;
+import balanceador.Balanceador;
+import balanceador.BalanceadorModelo1;
 import cargadadoresprogramas.Cargador;
 import cargadadoresprogramas.Dinamica;
 import cargadadoresprogramas.Fija;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,10 +73,7 @@ public class Controlador {
     private AdmnistradorProgramasNuevos AdministradorProgramas;
     private BUS2 BUSAsignado;
     private GestorProcesos Gestor;
-    private BUSModelo2 bus;
-    private final ColaProcesos colaListos = new ColaProcesos(); // cola de listos
-    private Thread hiloPlanificador;                       // para HRRN/RR/SJF/SRT
-    private FCFS fcfs;   
+    private Algoritmo PlanificadorSeleccionado;   
 
     public Controlador(){
         AdministradorProgramas = null;
@@ -89,106 +88,67 @@ public class Controlador {
             tamanoAlmacenamiento, conversor, direccionEscrituraAlmacenamiento);
         LinkedList<String> direccionesProgramas = new LinkedList();
         LinkedList<String> nombresProgramas = new LinkedList();
-        Algoritmo planificador = null;
-        bus = new BUSModelo2(almacenamiento);
-        bus.AsignarRAM(ram);
+        BUSAsignado = new BUSModelo2(almacenamiento);
+        BUSAsignado.AsignarRAM(ram);
         BUSPantalla busPantalla = new BUSPantallaModelo1(this);
-        AdministradorProgramas = new AdmnistradorProgramasNuevos(nombresProgramas, direccionesProgramas, bus);
-        BUSAsignado = bus;
-        Gestor = new GestorProcesos(planificador);
+        AdministradorProgramas = new AdmnistradorProgramasNuevos(nombresProgramas, direccionesProgramas, BUSAsignado);
+        Balanceador balanceador = new BalanceadorModelo1();
+        List<CPU> cpus = new ArrayList<>();
         //Crear los CPUs
         for(int cantidadCreada = 0; cantidadCreada < cantidadCPU; cantidadCreada++){
             Conversor conversorInstrucciones = new Conversor();
             Map<String, Instruccion> instruccionesCPU = CrearInstrucciones(conversorInstrucciones, busPantalla);
             Map<String, String> registros = CrearRegistros();
             CPU cpu = new CPUModelo2(instruccionesCPU, registros);
-            bus.AsignarCPU(cpu);
+            BUSAsignado.AsignarCPU(cpu);
+            balanceador.AsignarCPU(cpu);
+            cpus.add(cpu);
         }
         //Crear el algoritmo escogido
         Cargador cargador = null;
         switch(tipoCargador){
             case 1:
-                cargador = new Fija(50, tamanoRAM, almacenamiento, bus, direccionesProgramas);
+                cargador = new Fija(50, tamanoRAM, almacenamiento, BUSAsignado, direccionesProgramas);
                 break;
             case 2:
-                cargador = new Dinamica(tamanoRAM, almacenamiento, bus, direccionesProgramas);
+                cargador = new Dinamica(tamanoRAM, almacenamiento, BUSAsignado, direccionesProgramas);
                 break;
             case 3:
-                cargador = new Fija(50, tamanoRAM, almacenamiento, bus, direccionesProgramas);
+                cargador = new Fija(50, tamanoRAM, almacenamiento, BUSAsignado, direccionesProgramas);
                 break;
             case 4:
-                cargador = new Fija(50, tamanoRAM, almacenamiento, bus, direccionesProgramas);
+                cargador = new Fija(50, tamanoRAM, almacenamiento, BUSAsignado, direccionesProgramas);
                 break;
             default:
-                cargador = new Fija(50, tamanoRAM, almacenamiento, bus, direccionesProgramas);
+                cargador = new Fija(50, tamanoRAM, almacenamiento, BUSAsignado, direccionesProgramas);
         }
-        // guarda bus en campo, lo usan los algoritmos
-        this.bus = new BUSModelo2(almacenamiento);
 
         // === Selección de algoritmo ===
-        final long QUANTUM_DEF = 3; // quantum
+        final int QUANTUM_DEF = 3; // quantum
 
-        // apaga planificador anterior si existe
-        if (hiloPlanificador != null && hiloPlanificador.isAlive()) {
-            hiloPlanificador.interrupt();
-            hiloPlanificador = null;
-        }
-        fcfs = null;
+        PlanificadorSeleccionado = null;
 
-        switch (algoritmo) {
-            case 0: { // FCFS
-                fcfs = new FCFS(colaListos, /*cantidadCPUs*/ 1);
-                fcfs.AsignarBUS(this.bus);
-                fcfs.IniciarEjecucion();                 // crea CPUs internas y lanza el planificador
-                System.out.println("FCFS iniciado");
+        switch(algoritmo){
+            case 0:
+                PlanificadorSeleccionado = new FCFS(cargador, cpus, balanceador);
                 break;
-            }
-            case 1: { // SRT
-                SRT srt = new SRT(colaListos, this.bus);
-                srt.IniciarEjecucion();
-                hiloPlanificador = srt;
-                System.out.println("SRT iniciado");
+            case 1:
+                PlanificadorSeleccionado = new SRT(cargador, cpus, balanceador);
                 break;
-            }
-            case 2: { // SJF
-                SJF sjf = new SJF(this.bus);
-                sjf.start();              // SJF extiende Thread
-                hiloPlanificador = sjf;
-                System.out.println("SJF iniciado");
+            case 2:
+                PlanificadorSeleccionado = new SJF(cargador, cpus, balanceador);
                 break;
-            }
-            case 3: { // RR
-                RR rr = new RR(colaListos, this.bus, QUANTUM_DEF);
-                rr.IniciarEjecucion();
-                hiloPlanificador = rr;
-                System.out.println(" RR iniciado (q=" + QUANTUM_DEF + ")");
+            case 3:
+                PlanificadorSeleccionado = new RR(cargador, cpus, balanceador, QUANTUM_DEF);
                 break;
-            }
-            case 4: { // HRRN
-                HRRN hrrn = new HRRN(colaListos, this.bus);
-                hrrn.IniciarEjecucion();
-                hiloPlanificador = hrrn;
-                System.out.println(" HRRN iniciado");
+            case 4:
+                PlanificadorSeleccionado = new HRRN(cargador, cpus, balanceador);
                 break;
-            }
-            case 5: { // SRR
-                // SRR srr = new SRR(colaListos, this.bus, QUANTUM_DEF);
-                // srr.IniciarEjecucion();
-                // hiloPlanificador = srr;
-                // System.out.println("[CTRL] SRR iniciado");
-                System.out.println("[CTRL] SRR no implementado aún; usando FCFS por defecto");
-                fcfs = new FCFS(colaListos, 1);
-                fcfs.AsignarBUS(this.bus);
-                fcfs.IniciarEjecucion();
-                break;
-            }
-            default: {
-                fcfs = new FCFS(colaListos, 1);
-                fcfs.AsignarBUS(this.bus);
-                fcfs.IniciarEjecucion();
-            }
+            default:
+                PlanificadorSeleccionado = new FCFS(cargador, cpus, balanceador);
         }
-        
+        PlanificadorSeleccionado.AsignarBUS(BUSAsignado);
+        Gestor = new GestorProcesos(PlanificadorSeleccionado);
     }
 
     /**
@@ -249,22 +209,22 @@ public class Controlador {
      */
     private Map<String, Instruccion> CrearInstrucciones(Conversor conversor, BUSPantalla busPantalla){
         Map<String, Instruccion> instrucciones = new HashMap<>();
-        instrucciones.put("00000", new Load(conversor, 1, bus)); // LOAD
-        instrucciones.put("00001", new Store(conversor, 1, bus)); // STORE
+        instrucciones.put("00000", new Load(conversor, 1, BUSAsignado)); // LOAD
+        instrucciones.put("00001", new Store(conversor, 1, BUSAsignado)); // STORE
         instrucciones.put("00010", new Mov(conversor, 1)); // MOV
         instrucciones.put("00011", new Add(conversor, 1)); // ADD
         instrucciones.put("00100", new Sub(conversor, 1)); // SUB
         instrucciones.put("00101", new Inc(conversor, 1)); // INC
         instrucciones.put("00110", new Dec(conversor, 1)); // DEC
         instrucciones.put("00111", new Swap(conversor, 1)); // SWAP
-        instrucciones.put("01000", new Int(conversor, 1, busPantalla, bus)); // INT
-        instrucciones.put("01001", new JMP(conversor, 1, bus)); // JMP
+        instrucciones.put("01000", new Int(conversor, 1, busPantalla, BUSAsignado)); // INT
+        instrucciones.put("01001", new JMP(conversor, 1, BUSAsignado)); // JMP
         instrucciones.put("01010", new CMP(conversor, 1)); // CMP
-        instrucciones.put("01011", new JE(conversor, 1, bus)); // JE
-        instrucciones.put("01100", new JNE(conversor, 1, bus)); // JNE
-        instrucciones.put("01101", new Param(conversor, 1, bus)); // PARAM
-        instrucciones.put("01110", new Push(conversor, 1, bus)); // PUSH
-        instrucciones.put("01111", new Pop(conversor, 1, bus)); // POP
+        instrucciones.put("01011", new JE(conversor, 1, BUSAsignado)); // JE
+        instrucciones.put("01100", new JNE(conversor, 1, BUSAsignado)); // JNE
+        instrucciones.put("01101", new Param(conversor, 1, BUSAsignado)); // PARAM
+        instrucciones.put("01110", new Push(conversor, 1, BUSAsignado)); // PUSH
+        instrucciones.put("01111", new Pop(conversor, 1, BUSAsignado)); // POP
         return instrucciones;
     }
     

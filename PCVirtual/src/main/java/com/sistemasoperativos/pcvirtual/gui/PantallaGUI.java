@@ -232,7 +232,7 @@ public class PantallaGUI extends Application {
             List<Map<String, String>> listaRegistros = controlador.ObtenerRegistros();
             List<Map<String, String>> listaBCPs = controlador.ObtenerBCPs();
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < listaBCPs.size() && i < 4; i++) {
                 Map<String, String> regs = listaRegistros.get(i);
                 Map<String, String> bcp = listaBCPs.get(i);
 
@@ -309,6 +309,7 @@ public class PantallaGUI extends Application {
 
         } catch (Exception ex) {
             escribir("Error al actualizar CPUs: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

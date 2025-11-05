@@ -4,11 +4,13 @@
  */
 package algoritmos;
 
-import com.sistemasoperativos.pcvirtual.componentes.BUSModelo2;
+import balanceador.Balanceador;
+import cargadadoresprogramas.Cargador;
+import com.sistemasoperativos.pcvirtual.componentes.CPU;
 import com.sistemasoperativos.pcvirtual.procesos.BCP;
 import com.sistemasoperativos.pcvirtual.procesos.EstadoBCP;
+import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
@@ -21,101 +23,59 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * y lo ejecuta completamente antes de pasar al siguiente.
  */
 
-public class SJF extends Thread {
+public class SJF extends Planificador implements Algoritmo {
 
-    private final BUSModelo2 bus;
-    private final Queue<BCP> listaProcesos;
-    private boolean activo;
-
-    public SJF(BUSModelo2 bus) {
-        this.bus = bus;
-        this.listaProcesos = new ConcurrentLinkedQueue<>();
-        this.activo = true;
-    }
-
-    /**
-     * Agrega un nuevo proceso a la cola de listos.
-     */
-    public void agregarProceso(BCP proceso) {
-        proceso.marcarPreparado();
-        listaProcesos.add(proceso);
-        System.out.println("[SJF] Proceso agregado: " + proceso.getNombre());
-    }
-
-    /**
-     * Detiene la ejecución del planificador.
-     */
-    public void detener() {
-        activo = false;
+    public SJF(Cargador cargador, List<CPU> cpus, Balanceador balanceador) {
+        super(cargador, cpus, balanceador);
     }
 
     @Override
-    public void run() {
-        while (activo) {
-            try {
-                BCP proceso = seleccionarProcesoSJF();
-
-                if (proceso == null) {
-                    Thread.sleep(500); // Esperar si no hay procesos listos
-                    continue;
+    public void IniciarEjecucion() {
+        EjecutarCPUs();
+        Thread hilo = new Thread(() -> {
+            while(true){
+                try{
+                    SacarPrograma();
+                    CargarPrograma();
+                    EjecutarSJF();
+                    Thread.sleep(1000);
                 }
-
-                ejecutarProceso(proceso);
-
-            } catch (Exception e) {
-                System.err.println("[SJF] Error: " + e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Selecciona el proceso con menor tiempo total de ejecución.
-     */
-    private BCP seleccionarProcesoSJF() {
-        BCP seleccionado = null;
-        long menorRafaga = Long.MAX_VALUE;
-
-        for (BCP p : listaProcesos) {
-            if (p.getEstado() == EstadoBCP.LISTO) {
-                long tiempoRafaga = p.getTiempoTotalEjecucion();
-                if (tiempoRafaga < menorRafaga) {
-                    menorRafaga = tiempoRafaga;
-                    seleccionado = p;
+                catch(Exception e){
+                    e.printStackTrace();
                 }
             }
-        }
-        return seleccionado;
+        });
+        hilo.start();
     }
 
-    /**
-     * Simula la ejecución completa de un proceso seleccionado.
-     */
-    private void ejecutarProceso(BCP proceso) {
-        if (proceso == null) return;
-
-        proceso.marcarEjecucion();
-        System.out.println("[SJF] Ejecutando proceso: " + proceso.getNombre());
-
-        long ciclos = proceso.getTiempoTotalEjecucion();
-
-        for (long i = proceso.getTiempoEjecutado(); i < ciclos; i++) {
-            try {
-                bus.EscribirDatoRAM("00000", proceso.getNombre() + " ejecutando ciclo " + (i + 1));
-            } catch (Exception e) {
-                System.err.println("[SJF] Error al escribir en bus: " + e.getMessage());
-            }
-
-            proceso.setTiempoEjecutado(i + 1);
-
-            try {
-                Thread.sleep(500); // Simula un ciclo de CPU de 500 ms
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    private void EjecutarSJF() throws Exception{
+        if(BalanceadorAsignado.EstanCPUsOcupados() || Cola.estaVacia())
+            return;
+        Queue<BCP> procesos = Cola.getProcesos();
+        BCP proceso = ElegirMenorRafaga(procesos);
+        int numeroCPU = BalanceadorAsignado.AsignarProcesoACPU(proceso);
+        proceso.setEstado(EstadoBCP.EJECUTANDO);
+        switch(numeroCPU){
+            case 0: ProcesoCPU0 = proceso;
+                break;
+            case 1: ProcesoCPU1 = proceso;
+                break;
+            case 2: ProcesoCPU2 = proceso;
+                break;
+            case 3: ProcesoCPU3 = proceso;
+                break;
+        }
+    }
+    
+    private BCP ElegirMenorRafaga(Queue<BCP> procesos){
+        List<BCP> procesosLista = (List) procesos;
+        BCP bcpMenor = procesosLista.get(0);
+        for(BCP bcpActual : procesosLista){
+            if(bcpMenor.getRafaga() > bcpActual.getRafaga()){
+                bcpMenor = bcpActual;
             }
         }
-
-        proceso.marcarFinalizado();
-        System.out.println("[SJF] Proceso finalizado: " + proceso.getNombre());
+        procesos.remove(bcpMenor);
+        return bcpMenor;
     }
-
 }

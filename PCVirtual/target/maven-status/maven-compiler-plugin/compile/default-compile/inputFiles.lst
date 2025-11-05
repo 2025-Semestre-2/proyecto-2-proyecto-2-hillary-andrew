@@ -1,54 +1,68 @@
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUSModelo2.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/module-info.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/InstruccionComun.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/CPU.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUSPantalla.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/procesos/ColaProcesos.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Int.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Swap.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/procesos/BCP.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/Parser.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Load.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUSModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/JE.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/CPUModelo2.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/procesos/EstadoBCP.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Store.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUS.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/CMP.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/Conversor.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Sub.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/CompiladorModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Push.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/MiLexer.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/App.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Add.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/RAM.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/AlmacenamientoModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/DesensambladorModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/procesos/Planificador.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/SystemInfo.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/CrearPCDialog.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Dec.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Mov.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Pop.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Param.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/ConfigPC.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/JMP.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/ConversorMemoria.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/Almacenamiento.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUSPantallaModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/AdmnistradorProgramasNuevos.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/RAMModelo1.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/controlador/Controlador.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/sym.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/componentes/BUS2.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/compilador/Compilador.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Instruccion.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/Inc.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/PantallaGUI.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/gui/ConversorRegistros.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/JNE.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/InstruccionComunUnParametro.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/instrucciones/InstruccionComunDosParametros.java
-/home/andrewdeni/Documentos/Tecnológico de Costa Rica/Principios de Sistemas Operativos/proyecto-1-error-404/PCVirtual/src/main/java/com/sistemasoperativos/pcvirtual/procesos/GestorProcesos.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUSPantalla.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\Planificador.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Sub.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\sym.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\CrearPCDialog.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\MiLexer.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\Conversor.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Store.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\SJF.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Inc.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\AdmnistradorProgramasNuevos.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUSModelo2.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\InstruccionComunUnParametro.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\AlmacenamientoModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\controlador\Controlador.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\cargadadoresprogramas\Segmentacion.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Dec.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\InstruccionComun.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Load.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\CompiladorModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUSModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\RAM.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\JNE.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\cargadadoresprogramas\Fija.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\Almacenamiento.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUS.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\RAMModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Push.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Add.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\balanceador\BalanceadorModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\JMP.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\FCFS.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\procesos\EstadoBCP.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Param.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\HRRN.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\ConversorMemoria.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\Algoritmo.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\DesensambladorModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\controlador\Fijo.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Mov.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\Parser.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\balanceador\Balanceador.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\cargadadoresprogramas\Dinamica.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\ConfigPC.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Pop.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\CPUModelo2.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\SRT.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\cargadadoresprogramas\Paginacion.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\SystemInfo.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\CMP.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Instruccion.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\algoritmos\RR.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\App.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\module-info.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\JE.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\procesos\BCP.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\compilador\Compilador.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\CPU.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\PantallaGUI.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\InstruccionComunDosParametros.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUS2.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\gui\ConversorRegistros.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Swap.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\componentes\BUSPantallaModelo1.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\cargadadoresprogramas\Cargador.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\procesos\ColaProcesos.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\instrucciones\Int.java
+E:\GitHub\proyecto-2-proyecto-2-hillary-andrew\PCVirtual\src\main\java\com\sistemasoperativos\pcvirtual\procesos\GestorProcesos.java

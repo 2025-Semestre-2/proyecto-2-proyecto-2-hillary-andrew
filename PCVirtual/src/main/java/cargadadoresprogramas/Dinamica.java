@@ -21,13 +21,12 @@ public class Dinamica implements Cargador{
     private final Almacenamiento Disco;
     private final Conversor ConversorAsignado;
     private final List<String> DireccionesProgramas;
-    private int IndicePrograma = 0;
     private final BUS BusAsignado;
     
     public Dinamica(int tamanoMemoria, Almacenamiento disco, BUS bus, List<String> direccionesProgramas){
         TamanoMemoria = tamanoMemoria;
         TablaAsignacion = new LinkedHashMap<>();
-        for(int base = 100; base < TamanoMemoria; base++){
+        for(int base = 200; base < TamanoMemoria; base++){
             TablaAsignacion.put(base, Boolean.FALSE);
         }
         Disco = disco;
@@ -38,12 +37,13 @@ public class Dinamica implements Cargador{
 
     @Override
     public void CargarPrograma(BCP bcp) throws Exception {
-        String direccionPrograma = DireccionesProgramas.get(IndicePrograma);
-        IndicePrograma++;
+        if(DireccionesProgramas.isEmpty())
+            return;
+        String direccionPrograma = DireccionesProgramas.get(DireccionesProgramas.size() - 1);
+        DireccionesProgramas.remove(direccionPrograma);
         List<String> programa = Disco.BuscarPrograma(direccionPrograma);
         int base = BuscarEspacio(programa.size());
         if (base == 0){
-            IndicePrograma--;
             throw new Exception("No hay más espacio en la memoria.");
         }
         int limite = base;
@@ -53,6 +53,7 @@ public class Dinamica implements Cargador{
             String direccion = ConversorAsignado.ConvertirIntegerABits(limite);
             BusAsignado.EscribirDatoRAM(direccion, instruccion);
         }
+        bcp.setRafaga(programa.size());
     }
     
     private int BuscarEspacio(int tamanoPrograma){

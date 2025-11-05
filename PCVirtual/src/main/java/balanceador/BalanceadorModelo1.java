@@ -23,7 +23,7 @@ public class BalanceadorModelo1 implements Balanceador {
     }
 
     @Override
-    public boolean AsignarProcesoACPU(BCP bcp) {
+    public int AsignarProcesoACPU(BCP bcp) {
         List<CPU> cpus = new ArrayList<>();
         for(CPU cpu : CPUs){
             Map<String, String> registros = cpu.ObtenerRegistros();
@@ -32,15 +32,15 @@ public class BalanceadorModelo1 implements Balanceador {
             }
         }
         if(cpus.isEmpty()){
-            return false;
+            return -1;
         }
         Random random = new Random();
-        Integer cpuAleatorio = random.nextInt(cpus.size() + 1);
+        Integer cpuAleatorio = random.nextInt(cpus.size());
         CPU cpuSeleccionado = cpus.get(cpuAleatorio);
         Map<String, String> registros = cpuSeleccionado.ObtenerRegistros();
         cpuSeleccionado.CambiarRegistros(registros);
         bcp.setCpuAsignado(cpuAleatorio.toString());
-        return true;
+        return cpuAleatorio;
     }
 
     @Override

@@ -4,10 +4,14 @@
  */
 package algoritmos;
 
+import balanceador.Balanceador;
+import cargadadoresprogramas.Cargador;
 import com.sistemasoperativos.pcvirtual.componentes.BUSModelo2;
+import com.sistemasoperativos.pcvirtual.componentes.CPU;
 import com.sistemasoperativos.pcvirtual.procesos.BCP;
 import com.sistemasoperativos.pcvirtual.procesos.ColaProcesos;
 import com.sistemasoperativos.pcvirtual.procesos.EstadoBCP;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -18,99 +22,102 @@ import java.util.Queue;
  * @author males
  */
 
-public class RR extends Thread {
+public class RR extends Planificador implements Algoritmo {
 
-    private final ColaProcesos cola;
-    private final BUSModelo2 bus;
-    private final long quantum; // tiempo de CPU asignado por turno
-    private boolean enEjecucion = false;
+    private final int quantum;
+    private int quantumProceso0;
+    private int quantumProceso1;
+    private int quantumProceso2;
+    private int quantumProceso3;
 
-    public RR(ColaProcesos cola, BUSModelo2 bus, long quantum) {
-        this.cola = cola;
-        this.bus = bus;
+    public RR(Cargador cargador, List<CPU> cpus, Balanceador balanceador, int quantum) {
+        super(cargador, cpus, balanceador);
         this.quantum = quantum;
-    }
-
-    public void IniciarEjecucion() {
-        if (!enEjecucion) {
-            enEjecucion = true;
-            this.start();
-        }
-    }
-
-    public void DetenerEjecucion() {
-        enEjecucion = false;
+        quantumProceso0 = 0;
+        quantumProceso1 = 0;
+        quantumProceso2 = 0;
+        quantumProceso3 = 0;
     }
 
     @Override
-    public void run() {
-        System.out.println("Planificador RR iniciado con quantum = " + quantum + " ms");
-
-        while (enEjecucion) {
-            Queue<BCP> lista = cola.getProcesos();
-
-            if (lista.isEmpty()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+    public void IniciarEjecucion() {
+        EjecutarCPUs();
+        Thread hilo = new Thread(() -> {
+            while(true){
+                try{
+                    SacarPrograma();
+                    CargarPrograma();
+                    ValidarProcesosQuantumCumplido();
+                    EjecutarRR();
+                    Thread.sleep(1000);
                 }
-                continue;
+                catch(Exception e){
+                    e.printStackTrace();
+                }
             }
-
-            // Tomar el primer proceso de la cola
-            BCP proceso = lista.poll();
-            if (proceso == null) continue;
-
-            // Ejecutar un turno
-            ejecutarCuanto(proceso);
-
-            // Si no terminó, volver a encolar
-            if (proceso.getEstado() != EstadoBCP.FINALIZADO) {
-                proceso.marcarPreparado();
-                lista.add(proceso);
-            }
-        }
-
-        System.out.println("Planificador RR finalizado.");
+        });
+        hilo.start();
     }
-
-    private void ejecutarCuanto(BCP proceso) {
-        if (proceso == null) return;
-
-        proceso.marcarEjecucion();
-        System.out.println(" [RR] Ejecutando " + proceso.getNombre());
-
-        long ciclosRestantes = proceso.getTiempoRestante();
-        long ciclosEjecutar = Math.min(quantum, ciclosRestantes);
-
-        for (long i = 0; i < ciclosEjecutar; i++) {
-            try {
-                bus.EscribirDatoRAM("00000",
-                        proceso.getNombre() + " ejecutando ciclo " + (proceso.getTiempoEjecutado() + 1));
-            } catch (Exception e) {
-                System.err.println("[RR] Error al escribir en bus: " + e.getMessage());
-            }
-
-            proceso.setTiempoEjecutado(proceso.getTiempoEjecutado() + 1);
-            proceso.setTiempoRestante(proceso.getTiempoTotalEjecucion() - proceso.getTiempoEjecutado());
-
-            try {
-                Thread.sleep(500); // simula un ciclo de CPU
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            // Si terminó antes del quantum, se rompe
-            if (proceso.getTiempoEjecutado() >= proceso.getTiempoTotalEjecucion()) {
-                proceso.marcarFinalizado();
-                System.out.println(" [RR] Proceso " + proceso.getNombre() + " completado.");
-                return;
+    
+    private void EjecutarRR() throws Exception{
+        if(BalanceadorAsignado.EstanCPUsOcupados() || Cola.estaVacia())
+            return;
+        BCP proceso = Cola.obtener();
+        int numeroCPU = BalanceadorAsignado.AsignarProcesoACPU(proceso);
+        proceso.setEstado(EstadoBCP.EJECUTANDO);
+        switch(numeroCPU){
+            case 0: ProcesoCPU0 = proceso;
+                quantumProceso0 = TiempoCPU0;
+                break;
+            case 1: ProcesoCPU1 = proceso;
+                quantumProceso1 = TiempoCPU1;
+                break;
+            case 2: ProcesoCPU2 = proceso;
+                quantumProceso2 = TiempoCPU2;
+                break;
+            case 3: ProcesoCPU3 = proceso;
+                quantumProceso3 = TiempoCPU3;
+                break;
+        }
+    }
+    
+    private void ValidarProcesosQuantumCumplido() throws Exception{
+        Queue<BCP> procesos = Cola.getProcesos();
+        if(ProcesoCPU0 != null){
+            int quantumConsumido = TiempoCPU0 - quantumProceso0;
+            if(quantumConsumido >= quantum){
+                procesos.add(ProcesoCPU0);
+                ProcesoCPU0 = Cola.obtener();
+                BalanceadorAsignado.AsignarProcesoACPU(ProcesoCPU0, 0);
+                quantumProceso0 = TiempoCPU0;
             }
         }
-
-        // Si aún no termina, se pausa
-        System.out.println("[RR] Quantum terminado para " + proceso.getNombre() +
-                " (" + proceso.getTiempoEjecutado() + "/" + proceso.getTiempoTotalEjecucion() + ")");
+        if(ProcesoCPU1 != null){
+            int quantumConsumido = TiempoCPU1 - quantumProceso1;
+            if(quantumConsumido >= quantum){
+                procesos.add(ProcesoCPU1);
+                ProcesoCPU1 = Cola.obtener();
+                BalanceadorAsignado.AsignarProcesoACPU(ProcesoCPU1, 0);
+                quantumProceso1 = TiempoCPU1;
+            }
+        }
+        if(ProcesoCPU2 != null){
+            int quantumConsumido = TiempoCPU2 - quantumProceso2;
+            if(quantumConsumido >= quantum){
+               procesos.add(ProcesoCPU2);
+                ProcesoCPU2 = Cola.obtener();
+                BalanceadorAsignado.AsignarProcesoACPU(ProcesoCPU2, 0);
+                quantumProceso2 = TiempoCPU2;
+            }
+        }
+        if(ProcesoCPU3 != null){
+            int quantumConsumido = TiempoCPU3 - quantumProceso3;
+            if(quantumConsumido >= quantum){
+                procesos.add(ProcesoCPU3);
+                ProcesoCPU3 = Cola.obtener();
+                BalanceadorAsignado.AsignarProcesoACPU(ProcesoCPU3, 0);
+                quantumProceso3 = TiempoCPU3;
+            }
+        }
     }
 }

@@ -10,10 +10,14 @@
 
 package algoritmos;
 
+import balanceador.Balanceador;
+import cargadadoresprogramas.Cargador;
 import com.sistemasoperativos.pcvirtual.componentes.BUSModelo2;
+import com.sistemasoperativos.pcvirtual.componentes.CPU;
 import com.sistemasoperativos.pcvirtual.procesos.BCP;
 import com.sistemasoperativos.pcvirtual.procesos.ColaProcesos;
 import com.sistemasoperativos.pcvirtual.procesos.EstadoBCP;
+import java.util.List;
 
 import java.util.Queue;
 
@@ -31,99 +35,67 @@ import java.util.Queue;
  */
 
 
-public class HRRN extends Thread {
-
-    private final ColaProcesos cola;
-    private final BUSModelo2 bus;
-    private boolean enEjecucion = false;
-
-    public HRRN(ColaProcesos cola, BUSModelo2 bus) {
-        this.cola = cola;
-        this.bus = bus;
-    }
-
-    public void IniciarEjecucion() {
-        if (!enEjecucion) {
-            enEjecucion = true;
-            this.start();
-        }
+public class HRRN extends Planificador implements Algoritmo {
+    
+    public HRRN(Cargador cargador, List<CPU> cpus, Balanceador balanceador){
+        super(cargador, cpus, balanceador);
     }
 
     @Override
-    public void run() {
-        System.out.println("Planificador HRRN iniciado...");
-
-        while (enEjecucion) {
-            Queue<BCP> lista = cola.getProcesos();
-
-            if (lista.isEmpty()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+    public void IniciarEjecucion() {
+        EjecutarCPUs();
+        Thread hilo = new Thread(() -> {
+            while(true){
+                try{
+                    SacarPrograma();
+                    CargarPrograma();
+                    EjecutaHRRN();
+                    Thread.sleep(1000);
                 }
-                continue;
+                catch(Exception e){
+                    e.printStackTrace();
+                }
             }
-
-            BCP proceso = seleccionarProcesoHRRN(lista);
-            if (proceso == null) continue;
-
-            ejecutarProceso(proceso);
-        }
-
-        System.out.println("Planificador HRRN finalizado.");
+        });
+        hilo.start();
     }
-
-    // Selecciona el proceso con mayor Response Ratio = (espera + servicio) / servicio
-    private BCP seleccionarProcesoHRRN(Queue<BCP> lista) {
-        double mayorRatio = -1;
-        BCP seleccionado = null;
-
-        long tiempoActual = System.currentTimeMillis();
-
-        for (BCP p : lista) {
-            if (p.getEstado() == EstadoBCP.FINALIZADO) continue;
-
-            long tiempoEspera = tiempoActual - p.getTiempoInicio();
-            long servicio = Math.max(1, p.getTiempoTotalEjecucion()); // evita división por 0
-            double ratio = ((double) (tiempoEspera + servicio)) / servicio;
-
-            if (ratio > mayorRatio) {
-                mayorRatio = ratio;
-                seleccionado = p;
-            }
+    
+    private void EjecutaHRRN(){
+        if(BalanceadorAsignado.EstanCPUsOcupados() || Cola.estaVacia())
+            return;
+        CalcularPrioridadBCPs(Cola.getProcesos());
+        BCP proceso = ElegirBCPMayorPrioridad(Cola.getProcesos());
+        int numeroCPU = BalanceadorAsignado.AsignarProcesoACPU(proceso);
+        proceso.setEstado(EstadoBCP.EJECUTANDO);
+        switch(numeroCPU){
+            case 0: ProcesoCPU0 = proceso;
+                break;
+            case 1: ProcesoCPU1 = proceso;
+                break;
+            case 2: ProcesoCPU2 = proceso;
+                break;
+            case 3: ProcesoCPU3 = proceso;
+                break;
         }
-
-        return seleccionado;
     }
-
-    private void ejecutarProceso(BCP proceso) {
-        if (proceso == null) return;
-
-        proceso.marcarEjecucion();
-        System.out.println(" Ejecutando " + proceso.getNombre());
-
-        long ciclos = proceso.getTiempoTotalEjecucion();
-        for (long i = proceso.getTiempoEjecutado(); i < ciclos; i++) {
-            try {
-                bus.EscribirDatoRAM("00000", proceso.getNombre() + " ejecutando ciclo " + (i + 1));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    
+    private void CalcularPrioridadBCPs(Queue<BCP> procesos){
+        List<BCP> procesosLista = (List) procesos;
+        for(BCP proceso : procesosLista){
+            int prioridad = ((TiempoCPU0 - proceso.getTiempoLlegada()) + TiempoCPU0) / TiempoCPU0;
+            proceso.setPrioridad(prioridad);
+        }
+    }
+    
+    private BCP ElegirBCPMayorPrioridad(Queue<BCP> procesos){
+        List<BCP> procesosLista = (List) procesos;
+        BCP procesoMayor = procesosLista.get(0);
+        for(BCP proceso : procesosLista){
+            if(procesoMayor.getPrioridad() < proceso.getPrioridad()){
+                procesoMayor = proceso;
             }
         }
-
-        proceso.marcarFinalizado();
-        System.out.println(" Proceso " + proceso.getNombre() + " completado.");
-    }
-
-    public void DetenerEjecucion() {
-        enEjecucion = false;
+        procesos.remove(procesoMayor);
+        return procesoMayor;
     }
 }

@@ -1,15 +1,18 @@
 package com.sistemasoperativos.pcvirtual.procesos;
 
+import com.sistemasoperativos.pcvirtual.componentes.Conversor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BCP {
+    private Conversor ConversorAsignado;
 
     private final int id;
     private final String nombre;
-    private final int prioridad;
+    private int prioridad;
     private EstadoBCP estado;
 
     // -------- Registros --------
@@ -17,16 +20,9 @@ public class BCP {
 
     // -------- Información contable --------
     private String cpuAsignado;
-    private long tiempoInicio;
-    private long tiempoEjecutado;
-    private long tiempoRestante;
-    private long tiempoTotalEjecucion; 
-
-    // -------- Información de E/S --------
-    private final List<String> archivosAbiertos;
-
-    // -------- Enlace al siguiente BCP (lista enlazada) --------
-    private BCP siguiente;
+    private int rafaga;
+    private int tiempoTranscurrido;
+    private int tiempoLlegada;
 
     public BCP(int id, String nombre, int prioridad) {
         this.id = id;
@@ -54,15 +50,26 @@ public class BCP {
         }
 
         // Info contable
-        this.cpuAsignado = "CPU0"; // por defecto
-        this.tiempoInicio = System.currentTimeMillis();
-        this.tiempoEjecutado = 0;
+        this.cpuAsignado = "";
+        this.rafaga = 0;
+        this.tiempoTranscurrido = 0;
+        this.tiempoLlegada = 0;
+    }
 
-        // Archivos abiertos vacíos
-        this.archivosAbiertos = new ArrayList<>();
+    public Conversor getConversorAsignado() {
+        return ConversorAsignado;
+    }
 
-        // Sin siguiente al inicio
-        this.siguiente = null;
+    public void setConversorAsignado(Conversor ConversorAsignado) {
+        this.ConversorAsignado = ConversorAsignado;
+    }
+
+    public int getTiempoLlegada() {
+        return tiempoLlegada;
+    }
+
+    public void setTiempoLlegada(int tiempoLlegada) {
+        this.tiempoLlegada = tiempoLlegada;
     }
 
     // -------- Métodos de cambio de estado -----------
@@ -94,13 +101,8 @@ public class BCP {
         return prioridad;
     }
 
-    // ----------- Manejo de archivos ----------- 
-    public void abrirArchivo(String nombreArchivo) {
-        archivosAbiertos.add(nombreArchivo);
-    }
-
-    public void cerrarArchivo(String nombreArchivo) {
-        archivosAbiertos.remove(nombreArchivo);
+    public void setPrioridad(int prioridad){
+        this.prioridad = prioridad;
     }
 
     // ----------- Acceso a registros (Map) ----------- 
@@ -226,31 +228,6 @@ public class BCP {
         this.cpuAsignado = cpuAsignado;
     }
 
-    public long getTiempoInicio() {
-        return tiempoInicio;
-    }
-
-    public void setTiempoInicio(long tiempoInicio) {
-        this.tiempoInicio = tiempoInicio;
-    }
-
-    public long getTiempoEjecutado() {
-        return tiempoEjecutado;
-    }
-
-    public void setTiempoEjecutado(long tiempoEjecutado) {
-        this.tiempoEjecutado = tiempoEjecutado;
-    }
-
-    // -------- Enlace a siguiente BCP ----------
-    public BCP getSiguiente() {
-        return siguiente;
-    }
-
-    public void setSiguiente(BCP siguiente) {
-        this.siguiente = siguiente;
-    }
-
     public EstadoBCP getEstado() {
         return estado;
     }
@@ -259,28 +236,61 @@ public class BCP {
         this.estado = estado;
     }
 
-    public long getTiempoTotalEjecucion() {
-        return tiempoTotalEjecucion;
-    }
-
-    public void setTiempoTotalEjecucion(long tiempoTotalEjecucion) {
-        this.tiempoTotalEjecucion = tiempoTotalEjecucion;
-        this.tiempoRestante = tiempoTotalEjecucion; // inicializar
-    }
-
-    public long getTiempoRestante() {
-        return tiempoRestante;
-    }
-
-    public void setTiempoRestante(long tiempoRestante) {
-        this.tiempoRestante = tiempoRestante;
-    }
-
-
-
     @Override
     public String toString() {
         return "Proceso " + id + " [" + nombre + "] - Estado: " + estado
                 + " - Registros=" + registros;
+    }
+    
+    public Map<String, String> GetInfo() {
+        Map<String, String> info = new LinkedHashMap<>();
+
+        // Información general del proceso
+        info.put("ID", String.valueOf(id));
+        info.put("Nombre", nombre);
+        info.put("Prioridad", String.valueOf(prioridad));
+        info.put("Estado", estado.toString());
+        info.put("CPU asignado", cpuAsignado);
+
+        // Información contable
+        info.put("Ráfaga", String.valueOf(rafaga));
+        info.put("Tiempo transcurrido", String.valueOf(tiempoTranscurrido));
+
+        // -------- Registros --------
+        // Se asume que ConversorAsignado convierte una cadena binaria a entero
+        info.put("PC", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getPC())));
+        info.put("AC", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getAC())));
+        info.put("IR", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getIR())));
+        info.put("AX", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getAX())));
+        info.put("BX", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getBX())));
+        info.put("CX", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getCX())));
+        info.put("DX", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getDX())));
+        info.put("SP", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getSP())));
+        info.put("CP", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getCP())));
+        info.put("BS", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getBS())));
+        info.put("LI", String.valueOf(ConversorAsignado.ConvertirBitsAInteger(getLimite())));
+
+        return info;
+    }
+
+
+    public int getRafaga() {
+        return rafaga;
+    }
+
+    public void setRafaga(int rafaga) {
+        this.rafaga = rafaga;
+    }
+
+    public int getTiempoTranscurrido() {
+        return tiempoTranscurrido;
+    }
+
+    public void setTiempoTranscurrido(int tiempoTranscurrido) {
+        this.tiempoTranscurrido = tiempoTranscurrido;
+    }
+    
+    public void sumarTiempo(){
+        this.tiempoTranscurrido++;
     }
 }

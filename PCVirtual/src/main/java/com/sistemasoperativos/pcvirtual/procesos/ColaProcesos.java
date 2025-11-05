@@ -27,7 +27,7 @@ public class ColaProcesos {
     public void agregar(BCP proceso, BUS bus) throws Exception {
         cola.add(proceso);
         int idBCP = proceso.getID();
-        int direccionEntera = (idBCP % 5) * 20;
+        int direccionEntera = (idBCP % 8) * 20;
         String direccionBits = ConversorAsignado.ConvertirIntegerABits(direccionEntera); //Escribir ID
         String dato = ConversorAsignado.ConvertirIntegerABits(idBCP);
         bus.EscribirDatoRAM(direccionBits, dato);

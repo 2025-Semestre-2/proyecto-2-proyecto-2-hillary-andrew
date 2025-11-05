@@ -5,10 +5,14 @@
 
 package algoritmos;
 
+import balanceador.Balanceador;
+import cargadadoresprogramas.Cargador;
 import com.sistemasoperativos.pcvirtual.componentes.BUSModelo2;
+import com.sistemasoperativos.pcvirtual.componentes.CPU;
 import com.sistemasoperativos.pcvirtual.procesos.BCP;
 import com.sistemasoperativos.pcvirtual.procesos.ColaProcesos;
 import com.sistemasoperativos.pcvirtual.procesos.EstadoBCP;
+import java.util.List;
 
 import java.util.Queue;
 
@@ -26,111 +30,109 @@ import java.util.Queue;
  *
  */
 
-public class SRT extends Thread {
+public class SRT extends Planificador implements Algoritmo {
 
-    private final ColaProcesos cola;
-    private final BUSModelo2 bus;
-    private boolean enEjecucion = false;
-
-    public SRT(ColaProcesos cola, BUSModelo2 bus) {
-        this.cola = cola;
-        this.bus = bus;
+    private int IndiceBCPMayor;
+    
+    public SRT(Cargador cargador, List<CPU> cpus, Balanceador balanceador){
+        super(cargador, cpus, balanceador);
     }
-
-    public void IniciarEjecucion() {
-        if (!enEjecucion) {
-            enEjecucion = true;
-            this.start();
-        }
-    }
-
+    
     @Override
-    public void run() {
-        System.out.println("Planificador SRT iniciado...");
-
-        while (enEjecucion) {
-            Queue<BCP> lista = cola.getProcesos();
-
-            if (lista.isEmpty()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+    public void IniciarEjecucion() {
+        EjecutarCPUs();
+        Thread hilo = new Thread(() -> {
+            while(true){
+                try{
+                    SacarPrograma();
+                    CargarPrograma();
+                    EjecutarSRTCPUDesocupado();
+                    EjecutarSRTExpropiación();
+                    Thread.sleep(1000);
                 }
-                continue;
+                catch(Exception e){
+                    e.printStackTrace();
+                }
             }
-
-            BCP proceso = seleccionarProcesoSRT(lista);
-            if (proceso == null) continue;
-
-            ejecutarProceso(proceso);
-        }
-
-        System.out.println("Planificador SRT finalizado.");
+        });
+        hilo.start();
     }
 
-    /**
-     * Selecciona el proceso con el menor tiempo restante.
-     */
-    private BCP seleccionarProcesoSRT(Queue<BCP> lista) {
-        BCP seleccionado = null;
-        long menorRestante = Long.MAX_VALUE;
-
-        for (BCP p : lista) {
-            if (p.getEstado() == EstadoBCP.FINALIZADO) continue;
-
-            if (p.getTiempoRestante() < menorRestante) {
-                menorRestante = p.getTiempoRestante();
-                seleccionado = p;
-            }
+    private void EjecutarSRTCPUDesocupado(){
+        if(BalanceadorAsignado.EstanCPUsOcupados() || Cola.estaVacia())
+            return;
+        Queue<BCP> procesos = Cola.getProcesos();
+        BCP proceso = ElegirMenorRafaga(procesos);
+        procesos.remove(proceso);
+        int numeroCPU = BalanceadorAsignado.AsignarProcesoACPU(proceso);
+        proceso.setEstado(EstadoBCP.EJECUTANDO);
+        switch(numeroCPU){
+            case 0: ProcesoCPU0 = proceso;
+                break;
+            case 1: ProcesoCPU1 = proceso;
+                break;
+            case 2: ProcesoCPU2 = proceso;
+                break;
+            case 3: ProcesoCPU3 = proceso;
+                break;
         }
-
-        return seleccionado;
     }
-
-    /**
-     * Ejecuta un proceso hasta que cambie el contexto o termine.
-     */
-    private void ejecutarProceso(BCP proceso) {
-        if (proceso == null) return;
-
-        proceso.marcarEjecucion();
-        System.out.println(" Ejecutando " + proceso.getNombre());
-
-        // Ejecuta un ciclo a la vez para permitir preempción
-        if (proceso.getTiempoRestante() > 0) {
-            try {
-                // Simula un ciclo de CPU
-                long nuevoRestante = proceso.getTiempoRestante() - 1;
-                proceso.setTiempoRestante(nuevoRestante);
-                proceso.setTiempoEjecutado(proceso.getTiempoEjecutado() + 1);
-
-                // Mostrar en el "bus" o consola
-                try {
-                    bus.EscribirDatoRAM("00000", proceso.getNombre() + " ejecutando ciclo "
-                            + proceso.getTiempoEjecutado() + " (restante=" + nuevoRestante + ")");
-                } catch (Exception e) {
-                    System.out.println("[BUS] " + proceso.getNombre() + " ejecutando ciclo "
-                            + proceso.getTiempoEjecutado());
-                }
-
-                Thread.sleep(500);
-
-                // Si terminó el proceso
-                if (proceso.getTiempoRestante() <= 0) {
-                    proceso.marcarFinalizado();
-                    System.out.println(" Proceso " + proceso.getNombre() + " completado.");
-                } else {
-                    proceso.marcarPreparado(); // vuelve a la cola
-                }
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    
+    private void EjecutarSRTExpropiación(){
+        if(Cola.estaVacia())
+            return;
+        Queue<BCP> procesos = Cola.getProcesos();
+        BCP bcpEjecutando = ElegirBCPEjecutanMayor();
+        BCP bcpListo = ElegirMenorRafaga(procesos);
+        if(bcpEjecutando.getRafaga() - bcpEjecutando.getTiempoTranscurrido() > bcpListo.getRafaga() - bcpListo.getTiempoTranscurrido()){
+            procesos.remove(bcpListo);
+            bcpEjecutando.setEstado(EstadoBCP.LISTO);
+            bcpListo.setEstado(EstadoBCP.EJECUTANDO);
+            switch(IndiceBCPMayor){
+                case 0:
+                    procesos.add(bcpListo);
+                    ProcesoCPU0 = bcpListo;
+                case 1:
+                    procesos.add(bcpListo);
+                    ProcesoCPU1 = bcpListo;
+                case 2:
+                    procesos.add(bcpListo);
+                    ProcesoCPU2 = bcpListo;
+                case 3:
+                    procesos.add(bcpListo);
+                    ProcesoCPU3 = bcpListo;
             }
         }
     }
-
-    public void DetenerEjecucion() {
-        enEjecucion = false;
+    
+    private BCP ElegirBCPEjecutanMayor(){
+        BCP bcpMayor = ProcesoCPU0;
+        IndiceBCPMayor = 0;
+        if(bcpMayor.getRafaga() - bcpMayor.getTiempoTranscurrido() > ProcesoCPU1.getRafaga() - ProcesoCPU1.getTiempoTranscurrido()){
+            bcpMayor = ProcesoCPU1;
+            IndiceBCPMayor = 1;
+        }
+        if(bcpMayor.getRafaga() - bcpMayor.getTiempoTranscurrido() > ProcesoCPU2.getRafaga() - ProcesoCPU2.getTiempoTranscurrido()){
+            bcpMayor = ProcesoCPU2;
+            IndiceBCPMayor = 2;
+        }
+        if(bcpMayor.getRafaga() - bcpMayor.getTiempoTranscurrido() > ProcesoCPU3.getRafaga() - ProcesoCPU3.getTiempoTranscurrido()){
+            bcpMayor = ProcesoCPU3;
+            IndiceBCPMayor = 3;
+        }
+        return bcpMayor;
+    }
+    
+    private BCP ElegirMenorRafaga(Queue<BCP> procesos){
+        List<BCP> procesosLista = (List) procesos;
+        BCP bcpMenor = procesosLista.get(0);
+        for(BCP bcpActual : procesosLista){
+            int rafagaRestanteMenor = bcpMenor.getRafaga() - bcpMenor.getTiempoTranscurrido();
+            int rafagaRestanteActual = bcpActual.getRafaga() - bcpActual.getTiempoTranscurrido();
+            if(rafagaRestanteMenor > rafagaRestanteActual){
+                bcpMenor = bcpActual;
+            }
+        }
+        return bcpMenor;
     }
 }
