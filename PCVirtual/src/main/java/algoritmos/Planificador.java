@@ -16,6 +16,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -36,6 +39,7 @@ public abstract class Planificador implements Algoritmo{
     protected BCP ProcesoCPU2;
     protected BCP ProcesoCPU3;
     private int CantidadProcesos;
+    ScheduledExecutorService scheduler;
     
     public Planificador(Cargador cargador, List<CPU> cpus, Balanceador balanceador){
         CargadorAsignado = cargador;
@@ -51,6 +55,7 @@ public abstract class Planificador implements Algoritmo{
         ProcesoCPU2 = null;
         ProcesoCPU3 = null;
         CantidadProcesos = 0;
+        scheduler = Executors.newScheduledThreadPool(CPUs.size());
     }
     
     protected void CargarPrograma() throws Exception{
@@ -67,42 +72,47 @@ public abstract class Planificador implements Algoritmo{
         }   
     }
     
-    protected void EjecutarCPUs(){
+    protected void EjecutarCPUs() {
         for (int i = 0; i < CPUs.size(); i++) {
-            final int indice = i; // Necesario para usar dentro de la lambda
+            final int indice = i;
             CPU cpu = CPUs.get(i);
-            new Thread(() -> {
+
+            Thread hiloCPU = new Thread(() -> {
                 try {
                     while (true) {
                         cpu.EjecutarInstruccion();
-                        System.out.println("CPU " + indice + " corriendo");
                         switch (indice) {
                             case 0:
                                 TiempoCPU0++;
+                                System.out.println("Tiempo CPU 0: " + TiempoCPU0);
                                 ActualizarTiempoBCP(ProcesoCPU0);
                                 break;
                             case 1:
                                 TiempoCPU1++;
+                                System.out.println("Tiempo CPU 1: " + TiempoCPU1);
                                 ActualizarTiempoBCP(ProcesoCPU1);
                                 break;
                             case 2:
                                 TiempoCPU2++;
+                                System.out.println("Tiempo CPU 2: " + TiempoCPU2);
                                 ActualizarTiempoBCP(ProcesoCPU2);
                                 break;
                             case 3:
                                 TiempoCPU3++;
+                                System.out.println("Tiempo CPU 3: " + TiempoCPU3);
                                 ActualizarTiempoBCP(ProcesoCPU3);
                                 break;
                         }
-
-                        Thread.sleep(1000);
+                        java.util.concurrent.TimeUnit.SECONDS.sleep(1);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }).start();
+            });
+            hiloCPU.start();
         }
     }
+
     
     private void ActualizarTiempoBCP(BCP bcp){
         if(bcp != null)

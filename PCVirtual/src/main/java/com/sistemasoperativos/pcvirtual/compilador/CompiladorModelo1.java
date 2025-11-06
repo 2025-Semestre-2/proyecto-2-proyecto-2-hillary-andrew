@@ -67,7 +67,6 @@ public class CompiladorModelo1 implements Compilador {
                 }
 
                 String bin = traducirInstruccion(linea, numLinea);
-                System.out.println("Línea: " + linea + "\nNumero Línea: " + numLinea + "\nBinario: " + bin + "\n==++==++==++==++");
                 instruccionesBinarias.add(bin);
             }
         }

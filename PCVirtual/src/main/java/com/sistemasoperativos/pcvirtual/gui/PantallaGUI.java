@@ -205,6 +205,9 @@ public class PantallaGUI extends Application {
             System.out.println(listaBCPs.toString());
 
             for (int i = 0; i < listaBCPs.size() && i < 4; i++) {
+                if(listaRegistros.size() <= i){
+                    continue;
+                }
                 Map<String, String> regs = listaRegistros.get(i);
                 Map<String, String> bcp = listaBCPs.get(i);
 

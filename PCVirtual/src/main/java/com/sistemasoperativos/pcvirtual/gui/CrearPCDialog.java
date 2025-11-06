@@ -112,6 +112,7 @@ public class CrearPCDialog extends Dialog<ConfigPC> {
                 mostrarError("No se pudo crear la PC",
                         "Error al crear la PC: " + ex.getMessage());
                 evt.consume();
+                ex.printStackTrace();
             }
         });
 
