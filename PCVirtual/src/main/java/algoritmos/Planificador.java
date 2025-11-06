@@ -75,11 +75,12 @@ public abstract class Planificador implements Algoritmo{
                 try {
                     while (true) {
                         cpu.EjecutarInstruccion();
+                        System.out.println("CPU " + indice + " corriendo");
                         switch (indice) {
                             case 0:
                                 TiempoCPU0++;
                                 ActualizarTiempoBCP(ProcesoCPU0);
-                                ; break;
+                                break;
                             case 1:
                                 TiempoCPU1++;
                                 ActualizarTiempoBCP(ProcesoCPU1);
@@ -115,10 +116,33 @@ public abstract class Planificador implements Algoritmo{
     public List<Map<String, String>> ObtenerBCPs() {
         List<Map<String, String>> lista = new ArrayList<>();
         Queue<BCP> colaAux = Cola.getProcesos();
+        if(ProcesoCPU0 != null){
+            lista.add(ProcesoCPU0.GetInfo());
+        }
+        else{
+            lista.add(null);
+        }
+        if(ProcesoCPU1 != null){
+            lista.add(ProcesoCPU1.GetInfo());
+        }
+        else{
+            lista.add(null);
+        }
+        if(ProcesoCPU2 != null){
+            lista.add(ProcesoCPU2.GetInfo());
+        }
+        else{
+            lista.add(null);
+        }
+        if(ProcesoCPU3 != null){
+            lista.add(ProcesoCPU3.GetInfo());
+        }
+        else{
+            lista.add(null);
+        }
         for (BCP bcp : colaAux) {
             lista.add(bcp.GetInfo());
         }
-
         return lista;
     }
 

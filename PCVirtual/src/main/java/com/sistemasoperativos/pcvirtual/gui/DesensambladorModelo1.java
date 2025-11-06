@@ -12,6 +12,7 @@ public class DesensambladorModelo1 {
         if(binario.length() == 16){
             return DecodificarNumero(binario);
         }
+        System.out.println(binario);
         String instruccionBinaria = binario.substring(0, 5);
         String instruccion = DecodificarInstruccion(instruccionBinaria);
         if(TipoInstruccion == 'N'){

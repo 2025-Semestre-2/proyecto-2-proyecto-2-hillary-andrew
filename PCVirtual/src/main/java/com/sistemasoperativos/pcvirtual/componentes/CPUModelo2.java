@@ -57,7 +57,7 @@ public class CPUModelo2 implements CPU{
     
     @Override
     public void EjecutarInstruccion() throws Exception {
-        String instruccionBits = Registros.get("00000");
+        String instruccionBits = Registros.get("00010");
         if(instruccionBits.equals("0000000000000000")){
             return;
         }

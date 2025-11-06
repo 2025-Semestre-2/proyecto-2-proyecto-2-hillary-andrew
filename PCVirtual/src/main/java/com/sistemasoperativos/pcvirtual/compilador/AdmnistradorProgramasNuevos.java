@@ -31,7 +31,7 @@ public class AdmnistradorProgramasNuevos {
         List<String> programa = CompiladorAsignado.Compilar(archivo);
         System.out.println(programa.toString());
         String direccion = BUSAsignado.EscribirAlmacenamiento(programa);
-        NombreProgramas.addFirst(nombre);
-        DireccionesProgramas.addFirst(direccion);
+        NombreProgramas.add(nombre);
+        DireccionesProgramas.add(direccion);
     }
 }

@@ -29,6 +29,8 @@ public class BCP {
         this.nombre = nombre;
         this.prioridad = prioridad;
         this.estado = EstadoBCP.NUEVO;
+        
+        ConversorAsignado = new Conversor();
 
         // Inicializar registros a "00000000"
         this.registros = new LinkedHashMap<>();

@@ -37,8 +37,7 @@ public class BalanceadorModelo1 implements Balanceador {
         Random random = new Random();
         Integer cpuAleatorio = random.nextInt(cpus.size());
         CPU cpuSeleccionado = cpus.get(cpuAleatorio);
-        Map<String, String> registros = cpuSeleccionado.ObtenerRegistros();
-        cpuSeleccionado.CambiarRegistros(registros);
+        cpuSeleccionado.CambiarRegistros(bcp.getRegistros());
         bcp.setCpuAsignado(cpuAleatorio.toString());
         return cpuAleatorio;
     }
